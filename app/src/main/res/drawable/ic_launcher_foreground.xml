@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Coin Shadow (Offset) -->
+    <path
+        android:fillColor="@color/pixel_ink"
+        android:pathData="M44,32 h28 l12,12 v28 l-12,12 h-28 l-12,-12 v-28 z" />
+
+    <!-- Main Coin Body -->
+    <path
+        android:fillColor="@color/pixel_gold"
+        android:strokeColor="@color/pixel_ink"
+        android:strokeWidth="2"
+        android:pathData="M40,28 h28 l12,12 v28 l-12,12 h-28 l-12,-12 v-28 z" />
+
+    <!-- Rupee Symbol (₹) -->
+    <!-- Top Bar -->
+    <path
+        android:fillColor="@color/pixel_ink"
+        android:pathData="M46,42 h16 v3 h-16 z" />
+    <!-- Middle Bar -->
+    <path
+        android:fillColor="@color/pixel_ink"
+        android:pathData="M46,48 h16 v3 h-16 z" />
+    <!-- Curve/Stem -->
+    <path
+        android:fillColor="@color/pixel_ink"
+        android:pathData="M58,42 v10 h-3 v-7 h-9 v3 h9 v4 h-9 v3 h12 v-13 z" />
+    <!-- Leg -->
+    <path
+        android:fillColor="@color/pixel_ink"
+        android:pathData="M50,58 l6,8 h-3 l-6,-8 z" />
+
+</vector>
