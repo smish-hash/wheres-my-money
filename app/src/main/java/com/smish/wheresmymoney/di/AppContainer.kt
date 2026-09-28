@@ -11,7 +11,7 @@ import com.smish.wheresmymoney.data.repository.PreferenceRepository
 
 /** One place holding every dependency. Passed down through Compose instead of using Hilt. */
 class AppContainer(context: Context) {
-    private val database = ExpenseDatabase.getInstance(context)
+    val database = ExpenseDatabase.getInstance(context)
 
     val userPreferencesRepository = UserPreferencesRepository(context)
     val preferenceRepository = PreferenceRepository(userPreferencesRepository)

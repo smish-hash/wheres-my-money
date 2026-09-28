@@ -59,22 +59,6 @@ class CategoryRepository(
     }
 
     suspend fun seedDefaultsIfEmpty() {
-        if (parentDao.count() > 0) return
-        val fixed = ParentCategoryEntity(id = IdGenerator.newId(), name = "Fixed", colorHex = "#2B2B2B", sortOrder = 0)
-        val flexi = ParentCategoryEntity(id = IdGenerator.newId(), name = "Flexi", colorHex = "#C6F135", sortOrder = 1)
-        parentDao.insert(fixed)
-        parentDao.insert(flexi)
-        pushParent(fixed)
-        pushParent(flexi)
-        listOf("Investments", "Bills", "Rent").forEachIndexed { i, n ->
-            val cat = CategoryEntity(id = IdGenerator.newId(), name = n, parentCategoryId = fixed.id, sortOrder = i)
-            categoryDao.insert(cat)
-            pushCategory(cat)
-        }
-        listOf("Travel", "Food", "Outing", "Others").forEachIndexed { i, n ->
-            val cat = CategoryEntity(id = IdGenerator.newId(), name = n, parentCategoryId = flexi.id, sortOrder = i)
-            categoryDao.insert(cat)
-            pushCategory(cat)
-        }
+        // No default pre-seeding: users create custom categories from scratch.
     }
 }

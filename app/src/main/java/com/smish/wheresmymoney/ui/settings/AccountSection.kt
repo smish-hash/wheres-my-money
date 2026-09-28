@@ -23,19 +23,37 @@ import com.smish.wheresmymoney.util.ViewModelFactory
 @Composable
 fun AccountSection(container: AppContainer, onAccountDeleted: () -> Unit = {}) {
     val viewModel: AccountViewModel = viewModel(
-        factory = ViewModelFactory { AccountViewModel(container.authRepository, container.userPreferencesRepository) }
+        factory = ViewModelFactory {
+            AccountViewModel(
+                container.authRepository,
+                container.userPreferencesRepository,
+                container.database,
+                container.categoryRepository
+            )
+        }
     )
     val user by viewModel.user.collectAsStateWithLifecycle()
+    val savedName by viewModel.userName.collectAsStateWithLifecycle()
     var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    val displayName = savedName?.takeIf { it.isNotBlank() } ?: user?.displayName ?: "—"
 
     PixelCard {
         Text("ACCOUNT", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(10.dp))
 
         if (user == null) {
+            if (!savedName.isNullOrEmpty()) {
+                Text(
+                    "Hello, $savedName!",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(Modifier.height(4.dp))
+            }
             Text(
                 "Not signed in. Sign in with Google to back up and sync your data.",
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(Modifier.height(12.dp))
@@ -55,7 +73,7 @@ fun AccountSection(container: AppContainer, onAccountDeleted: () -> Unit = {}) {
                 }
                 Spacer(Modifier.width(12.dp))
                 Column {
-                    Text(user?.displayName ?: "—", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
+                    Text(displayName, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
                     Text(user?.email ?: "—", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }

@@ -13,10 +13,6 @@ class ExpenseTrackerApp : Application() {
         super.onCreate()
         container = AppContainer(this)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            container.categoryRepository.seedDefaultsIfEmpty()
-        }
-
         // Starts/stops the Firestore listeners whenever sign-in state changes.
         CoroutineScope(Dispatchers.IO).launch {
             container.authRepository.authState.collect { user ->
