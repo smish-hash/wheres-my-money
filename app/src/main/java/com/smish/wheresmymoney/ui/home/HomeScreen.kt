@@ -20,6 +20,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.smish.wheresmymoney.data.local.entity.CategoryEntity
+import com.smish.wheresmymoney.data.local.entity.ParentCategoryEntity
 import com.smish.wheresmymoney.di.AppContainer
 import com.smish.wheresmymoney.ui.components.BlurredTopAppBar
 import com.smish.wheresmymoney.ui.components.MonthSelector
@@ -44,8 +46,31 @@ fun HomeScreen(
     val viewModel: HomeViewModel = viewModel(
         factory = ViewModelFactory { HomeViewModel(container.categoryRepository, container.expenseRepository) }
     )
-    val hazeState = remember { HazeState() }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    HomeScreenContent(
+        uiState = uiState,
+        onPreviousMonth = viewModel::previousMonth,
+        onNextMonth = viewModel::nextMonth,
+        onAddExpense = onAddExpense,
+        onManageCategories = onManageCategories,
+        onSettings = onSettings,
+        onCategoryClick = onCategoryClick
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreenContent(
+    uiState: HomeUiState,
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit,
+    onAddExpense: (categoryId: Long?) -> Unit,
+    onManageCategories: () -> Unit,
+    onSettings: () -> Unit,
+    onCategoryClick: (categoryId: Long, yearMonth: YearMonth) -> Unit
+) {
+    val hazeState = remember { HazeState() }
     val spacing = ExpenseTrackerTheme.spacing
 
     Scaffold(
@@ -91,21 +116,21 @@ fun HomeScreen(
             item {
                 MonthSelector(
                     yearMonth = uiState.yearMonth,
-                    onPrevious = viewModel::previousMonth,
-                    onNext = viewModel::nextMonth
+                    onPrevious = onPreviousMonth,
+                    onNext = onNextMonth
                 )
             }
 
             item {
                 PixelCard(
-                    backgroundColor = MaterialTheme.colorScheme.primary,
-                    borderColor = MaterialTheme.colorScheme.primary
+                    backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                    borderColor = MaterialTheme.colorScheme.onSurface
                 ) {
-                    Text("TOTAL SPENT", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.labelSmall)
+                    Text("TOTAL SPENT", color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.labelSmall)
                     Spacer(Modifier.height(spacing.xs))
                     Text(
                         CurrencyFormatter.format(uiState.grandTotal),
-                        color = MaterialTheme.colorScheme.secondary,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         style = MaterialTheme.typography.headlineLarge
                     )
                     if (uiState.groups.isNotEmpty()) {
@@ -120,7 +145,7 @@ fun HomeScreen(
                                     )
                                     Text(
                                         CurrencyFormatter.format(group.subtotal),
-                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                                         style = MaterialTheme.typography.bodyMedium
                                     )
                                 }
@@ -133,7 +158,7 @@ fun HomeScreen(
             items(uiState.groups, key = { it.parent.id }) { group ->
                 ParentGroupCard(
                     group = group,
-                    onAddExpense = onAddExpense,
+                    onAddExpense = { catId -> onAddExpense(catId) },
                     onCategoryClick = { catId -> onCategoryClick(catId, uiState.yearMonth) }
                 )
             }
@@ -163,7 +188,45 @@ fun HomeScreen(
 @Composable
 fun HomeScreenPreview() {
     ExpenseTrackerTheme {
-        // ...
+        val sampleState = HomeUiState(
+            yearMonth = YearMonth.of(2026, 9),
+            grandTotal = 1250.50,
+            groups = listOf(
+                ParentGroupUi(
+                    parent = ParentCategoryEntity(id = 1, name = "Needs", colorHex = "#D9603B"),
+                    categories = listOf(
+                        CategoryTotalUi(
+                            category = CategoryEntity(id = 1, name = "Groceries", parentCategoryId = 1),
+                            total = 450.00
+                        ),
+                        CategoryTotalUi(
+                            category = CategoryEntity(id = 2, name = "Utilities", parentCategoryId = 1),
+                            total = 400.00
+                        )
+                    ),
+                    subtotal = 850.00
+                ),
+                ParentGroupUi(
+                    parent = ParentCategoryEntity(id = 2, name = "Wants", colorHex = "#6FA8DC"),
+                    categories = listOf(
+                        CategoryTotalUi(
+                            category = CategoryEntity(id = 3, name = "Dining Out", parentCategoryId = 2),
+                            total = 400.50
+                        )
+                    ),
+                    subtotal = 400.50
+                )
+            )
+        )
+        HomeScreenContent(
+            uiState = sampleState,
+            onPreviousMonth = {},
+            onNextMonth = {},
+            onAddExpense = {},
+            onManageCategories = {},
+            onSettings = {},
+            onCategoryClick = { _, _ -> }
+        )
     }
 }
 

@@ -1,5 +1,6 @@
 package com.smish.wheresmymoney.data.remote
 
+import android.content.Context
 import android.util.Log
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
@@ -9,6 +10,7 @@ import com.smish.wheresmymoney.data.local.ExpenseDatabase
 import com.smish.wheresmymoney.data.local.entity.CategoryEntity
 import com.smish.wheresmymoney.data.local.entity.ExpenseEntity
 import com.smish.wheresmymoney.data.local.entity.ParentCategoryEntity
+import com.smish.wheresmymoney.widget.ExpenseWidgetReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -16,7 +18,10 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-class FirestoreSyncManager(private val database: ExpenseDatabase) {
+class FirestoreSyncManager(
+    private val context: Context,
+    private val database: ExpenseDatabase
+) {
     private val firestore = Firebase.firestore
     private var listeners: List<ListenerRegistration> = emptyList()
     private var scope: CoroutineScope? = null
@@ -141,6 +146,7 @@ class FirestoreSyncManager(private val database: ExpenseDatabase) {
         dto ?: return
         val dao = database.parentCategoryDao()
         if (dto.deleted) dao.deleteById(dto.id) else dao.upsert(dto.toEntity())
+        ExpenseWidgetReceiver.updateWidget(context)
     }
 
     private suspend fun applyCategory(dto: CategoryDto?) {
@@ -153,11 +159,13 @@ class FirestoreSyncManager(private val database: ExpenseDatabase) {
                 val parentExists = database.parentCategoryDao().getAllOnce().any { it.id == dto.parentCategoryId }
                 if (!parentExists) {
                     dao.upsert(dto.toEntity().copy(parentCategoryId = null))
+                    ExpenseWidgetReceiver.updateWidget(context)
                     return
                 }
             }
             dao.upsert(dto.toEntity())
         }
+        ExpenseWidgetReceiver.updateWidget(context)
     }
 
     private suspend fun applyExpense(uid: String, dto: ExpenseDto?) {
@@ -180,5 +188,6 @@ class FirestoreSyncManager(private val database: ExpenseDatabase) {
                 Log.e("FirestoreSyncManager", "Failed to apply expense ${dto.id}", e)
             }
         }
+        ExpenseWidgetReceiver.updateWidget(context)
     }
 }

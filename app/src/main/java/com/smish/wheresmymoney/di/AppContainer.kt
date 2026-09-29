@@ -16,8 +16,8 @@ class AppContainer(context: Context) {
     val userPreferencesRepository = UserPreferencesRepository(context)
     val preferenceRepository = PreferenceRepository(userPreferencesRepository)
     val authRepository = AuthRepository(context)
-    val syncManager = FirestoreSyncManager(database)
+    val syncManager = FirestoreSyncManager(context, database)
 
-    val categoryRepository = CategoryRepository(database.parentCategoryDao(), database.categoryDao(), authRepository, syncManager)
-    val expenseRepository = ExpenseRepository(database.expenseDao(), authRepository, syncManager)
+    val categoryRepository = CategoryRepository(context, database.parentCategoryDao(), database.categoryDao(), authRepository, syncManager)
+    val expenseRepository = ExpenseRepository(context, database.expenseDao(), authRepository, syncManager)
 }
