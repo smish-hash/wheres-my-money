@@ -65,7 +65,10 @@ class MainActivity : ComponentActivity() {
                             container = app.container,
                             startWithOnboarding = !done,
                             intent = currentIntent,
-                            onIntentConsumed = { currentIntent = null }
+                            onIntentConsumed = {
+                                currentIntent = null
+                                intent?.removeExtra("navigate_to")
+                            }
                         )
                     }
                 }

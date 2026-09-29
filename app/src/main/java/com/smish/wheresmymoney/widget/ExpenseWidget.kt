@@ -61,32 +61,40 @@ class ExpenseWidget : GlanceAppWidget() {
     }
 
     private suspend fun loadWidgetData(context: Context): WidgetData {
-        val database = ExpenseDatabase.getInstance(context)
-        val ym = YearMonth.now()
-        val (start, end) = DateUtils.monthRange(ym)
+        return try {
+            val database = ExpenseDatabase.getInstance(context)
+            val ym = YearMonth.now()
+            val (start, end) = DateUtils.monthRange(ym)
 
-        val parents = database.parentCategoryDao().getAllOnce()
-        val categories = database.categoryDao().getAllOnce()
-        val totals = database.expenseDao().getCategoryTotals(start, end).first()
+            val parents = database.parentCategoryDao().getAllOnce()
+            val categories = database.categoryDao().getAllOnce()
+            val totals = database.expenseDao().getCategoryTotals(start, end).first()
 
-        val totalsMap = totals.associateBy({ it.categoryId }, { it.total })
-        val byParent = categories.groupBy { it.parentCategoryId }
+            val totalsMap = totals.associateBy({ it.categoryId }, { it.total })
+            val byParent = categories.groupBy { it.parentCategoryId }
 
-        val groups = parents.sortedBy { it.sortOrder }.map { parent ->
-            val cats = byParent[parent.id] ?: emptyList()
-            val subtotal = cats.sumOf { totalsMap[it.id] ?: 0.0 }
-            ParentWidgetSubtotal(parent, subtotal)
+            val groups = parents.sortedBy { it.sortOrder }.map { parent ->
+                val cats = byParent[parent.id] ?: emptyList()
+                val subtotal = cats.sumOf { totalsMap[it.id] ?: 0.0 }
+                ParentWidgetSubtotal(parent, subtotal)
+            }
+
+            val ungroupedCats = byParent[null] ?: emptyList()
+            val ungroupedTotal = ungroupedCats.sumOf { totalsMap[it.id] ?: 0.0 }
+            val grandTotal = groups.sumOf { it.subtotal } + ungroupedTotal
+
+            WidgetData(
+                monthName = ym.month.name.uppercase(),
+                grandTotal = grandTotal,
+                parentGroups = groups.filter { it.subtotal > 0 || groups.size <= 4 }.take(4)
+            )
+        } catch (_: Exception) {
+            WidgetData(
+                monthName = YearMonth.now().month.name.uppercase(),
+                grandTotal = 0.0,
+                parentGroups = emptyList()
+            )
         }
-
-        val ungroupedCats = byParent[null] ?: emptyList()
-        val ungroupedTotal = ungroupedCats.sumOf { totalsMap[it.id] ?: 0.0 }
-        val grandTotal = groups.sumOf { it.subtotal } + ungroupedTotal
-
-        return WidgetData(
-            monthName = ym.month.name.uppercase(),
-            grandTotal = grandTotal,
-            parentGroups = groups.filter { it.subtotal > 0 || groups.size <= 4 }.take(4)
-        )
     }
 
     @Composable
