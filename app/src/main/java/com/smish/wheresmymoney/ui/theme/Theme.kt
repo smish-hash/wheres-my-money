@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.Color
 private val PixelColorScheme = lightColorScheme(
     primary = PixelInk,
     onPrimary = PixelBackground,
+    primaryContainer = PixelSurfaceDark,
+    onPrimaryContainer = PixelInk,
     secondary = PixelGreen,
     onSecondary = PixelInk,
     background = PixelBackground,
@@ -26,6 +28,8 @@ private val PixelColorScheme = lightColorScheme(
 private val DarkPixelColorScheme = darkColorScheme(
     primary = PixelDarkInk,
     onPrimary = PixelDarkBackground,
+    primaryContainer = Color(0xFF38342E),
+    onPrimaryContainer = PixelDarkInk,
     secondary = PixelGreen,
     onSecondary = PixelDarkBackground,
     background = PixelDarkBackground,

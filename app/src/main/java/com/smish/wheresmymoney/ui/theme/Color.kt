@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 val PixelBackground = Color(0xFFF7ECD9)
 val PixelSurface = Color(0xFFFFF9EE)
+val PixelSurfaceDark = Color(0xFFE2D0B0) // Slightly darker cream/tan shade
 val PixelInk = Color(0xFF1A1A1A)
 val PixelInkLight = Color(0xFF706A5C)
 val PixelGreen = Color(0xFFC6F135)

@@ -107,4 +107,8 @@ dependencies {
 
     // Coil Image Loading
     implementation(libs.coil.compose)
+
+    // Jetpack Glance App Widget
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
 }

@@ -1,6 +1,8 @@
 package com.smish.wheresmymoney.ui.navigation
 
+import android.content.Intent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,8 +19,20 @@ import com.smish.wheresmymoney.ui.settings.SettingsScreen
 import java.time.YearMonth
 
 @Composable
-fun NavGraph(container: AppContainer, startWithOnboarding: Boolean) {
+fun NavGraph(
+    container: AppContainer,
+    startWithOnboarding: Boolean,
+    intent: Intent? = null,
+    onIntentConsumed: () -> Unit = {}
+) {
     val navController = rememberNavController()
+
+    LaunchedEffect(intent, startWithOnboarding) {
+        if (!startWithOnboarding && intent?.getStringExtra("navigate_to") == "add_expense") {
+            navController.navigate(Screen.AddExpense.createRoute())
+            onIntentConsumed()
+        }
+    }
 
     NavHost(
         navController = navController,
