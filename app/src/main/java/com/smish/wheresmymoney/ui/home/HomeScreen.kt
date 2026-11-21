@@ -2,9 +2,11 @@ package com.smish.wheresmymoney.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -16,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -135,13 +138,20 @@ fun HomeScreenContent(
                     )
                     if (uiState.groups.isNotEmpty()) {
                         Spacer(Modifier.height(spacing.m))
-                        Row(horizontalArrangement = Arrangement.spacedBy(spacing.xl)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(spacing.xl)
+                        ) {
                             uiState.groups.forEach { group ->
                                 Column {
                                     Text(
                                         group.parent.name.uppercase(),
                                         color = group.parent.colorHex.toComposeColor(),
-                                        style = MaterialTheme.typography.labelSmall
+                                        style = MaterialTheme.typography.labelSmall,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                     Text(
                                         CurrencyFormatter.format(group.subtotal),
@@ -242,8 +252,14 @@ private fun ParentGroupCard(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(12.dp).background(color))
             Spacer(Modifier.width(spacing.s))
-            Text(group.parent.name.uppercase(), style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.weight(1f))
+            Text(
+                group.parent.name.uppercase(),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f, fill = false),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(Modifier.width(spacing.s))
             Text(CurrencyFormatter.format(group.subtotal), style = MaterialTheme.typography.titleMedium)
         }
         Spacer(Modifier.height(spacing.s))
@@ -278,7 +294,13 @@ private fun CategoryRow(
     ) {
         Box(Modifier.width(4.dp).height(20.dp).background(accentColor))
         Spacer(Modifier.width(spacing.s))
-        Text(name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+        Text(
+            name,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
         Text(CurrencyFormatter.format(total), style = MaterialTheme.typography.bodyLarge)
         IconButton(onClick = onAdd) {
             Icon(Icons.Default.Add, contentDescription = "Add expense to $name", tint = MaterialTheme.colorScheme.onSurfaceVariant)
