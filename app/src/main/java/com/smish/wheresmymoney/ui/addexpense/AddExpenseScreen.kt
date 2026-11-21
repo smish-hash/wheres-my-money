@@ -1,6 +1,8 @@
 package com.smish.wheresmymoney.ui.addexpense
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -43,11 +45,11 @@ fun AddExpenseScreen(
     var showPicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
 
-
     val selectedCategory = categories.find { it.id == viewModel.selectedCategoryId }
     val snackbarHostState = remember { SnackbarHostState() }
 
     val hazeState = remember { HazeState() }
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(viewModel.showSavedMessage) {
         if (viewModel.showSavedMessage) {
@@ -57,7 +59,7 @@ fun AddExpenseScreen(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState, modifier = Modifier.padding(bottom = 80.dp + spacing.xxl)) },
+        snackbarHost = { SnackbarHost(snackbarHostState, modifier = Modifier.imePadding().padding(bottom = spacing.m)) },
         topBar = {
             BlurredTopAppBar(
                 hazeState = hazeState,
@@ -73,36 +75,46 @@ fun AddExpenseScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .padding(spacing.l)
-                .hazeSource(state = hazeState),
-            verticalArrangement = Arrangement.spacedBy(spacing.m)
+                .imePadding()
+                .navigationBarsPadding()
+                .padding(horizontal = spacing.l, vertical = spacing.m)
+                .hazeSource(state = hazeState)
         ) {
-            Text("CATEGORY", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            PixelCard(modifier = Modifier.fillMaxWidth().clickable { showPicker = true }) {
-                Text(selectedCategory?.name ?: "Tap to choose", style = MaterialTheme.typography.bodyLarge)
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(spacing.m)
+            ) {
+                Text("CATEGORY", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                PixelCard(modifier = Modifier.fillMaxWidth().clickable { showPicker = true }) {
+                    Text(selectedCategory?.name ?: "Tap to choose", style = MaterialTheme.typography.bodyLarge)
+                }
+
+                Text("AMOUNT (₹)", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                PixelTextField(
+                    value = viewModel.amountText, onValueChange = viewModel::onAmountChange,
+                    placeholder = "0.00", keyboardType = KeyboardType.Decimal
+                )
+
+                Text("DATE", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                PixelCard(modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true }) {
+                    Text(DateUtils.formatDate(viewModel.dateMillis), style = MaterialTheme.typography.bodyLarge)
+                }
+
+                Text("NOTE (OPTIONAL)", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                PixelTextField(
+                    value = viewModel.note, onValueChange = viewModel::onNoteChange,
+                    placeholder = "e.g. Groceries at BigBasket"
+                )
+
+                Spacer(Modifier.height(spacing.m))
             }
-
-            Text("AMOUNT (₹)", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            PixelTextField(
-                value = viewModel.amountText, onValueChange = viewModel::onAmountChange,
-                placeholder = "0.00", keyboardType = KeyboardType.Decimal
-            )
-
-            Text("DATE", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            PixelCard(modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true }) {
-                Text(DateUtils.formatDate(viewModel.dateMillis), style = MaterialTheme.typography.bodyLarge)
-            }
-
-            Text("NOTE (OPTIONAL)", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            PixelTextField(
-                value = viewModel.note, onValueChange = viewModel::onNoteChange,
-                placeholder = "e.g. Groceries at BigBasket"
-            )
-
-            Spacer(Modifier.weight(1f))
 
             Row(
-                modifier = Modifier.fillMaxWidth().navigationBarsPadding(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = spacing.s),
                 horizontalArrangement = Arrangement.spacedBy(spacing.s)
             ) {
                 PixelButton(

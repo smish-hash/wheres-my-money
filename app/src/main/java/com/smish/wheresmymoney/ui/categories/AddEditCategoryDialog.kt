@@ -26,10 +26,11 @@ fun AddEditCategoryDialog(
     initial: CategoryEntity?,
     parents: List<ParentCategoryEntity>,
     onConfirm: (name: String, parentId: Long?) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    defaultParentId: Long? = null
 ) {
     var name by remember { mutableStateOf(initial?.name ?: "") }
-    var selectedParentId by remember { mutableStateOf(initial?.parentCategoryId) }
+    var selectedParentId by remember { mutableStateOf(initial?.parentCategoryId ?: defaultParentId) }
 
     Dialog(onDismissRequest = onDismiss) {
         PixelCard(backgroundColor = PixelSurface) {
