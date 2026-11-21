@@ -59,6 +59,8 @@ fun CategoriesScreen(container: AppContainer, onBack: () -> Unit) {
     val collapsedParentIds = remember { mutableStateSetOf<Long>() }
     var isUncategorizedCollapsed by remember { mutableStateOf(false) }
 
+    val categoriesByParent = remember(categories) { categories.groupBy { it.parentCategoryId } }
+
     Scaffold(
         topBar = {
             BlurredTopAppBar(
@@ -89,7 +91,7 @@ fun CategoriesScreen(container: AppContainer, onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(spacing.m)
         ) {
             parents.forEach { parent ->
-                val subcategories = categories.filter { it.parentCategoryId == parent.id }
+                val subcategories = categoriesByParent[parent.id] ?: emptyList()
                 val isExpanded = parent.id !in collapsedParentIds
 
                 item(key = "p_${parent.id}") {
@@ -218,7 +220,7 @@ fun CategoriesScreen(container: AppContainer, onBack: () -> Unit) {
                 }
             }
 
-            val uncategorized = categories.filter { it.parentCategoryId == null }
+            val uncategorized = categoriesByParent[null] ?: emptyList()
             if (uncategorized.isNotEmpty()) {
                 item(key = "uncategorized_group") {
                     val isUnexpanded = !isUncategorizedCollapsed
